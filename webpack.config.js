@@ -121,7 +121,7 @@ module.exports = (env, argv) => {
     },
     {
       test: /\.m?[jt]sx?$/,
-      exclude: /[\\/]node_modules[\\/]/,
+      exclude: /[\\/]node_modules[\\/](?!@composition[\\/])/,
       use: {
         loader: 'babel-loader',
         options: {
