@@ -2,6 +2,8 @@
 
 const path = require('path')
 
+const { DefinePlugin } = require('webpack')
+
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
@@ -134,7 +136,7 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
-        app: path.join(projectRoot, 'src', 'app')
+        app: './src/client'
       },
       mode,
       module: {
@@ -159,6 +161,9 @@ module.exports = (env, argv) => {
         publicPath: '/dist/'
       },
       plugins: [
+        new DefinePlugin({
+          __COMPOSITION_APP_ID__: JSON.stringify(appId)
+        }),
         new MiniCssExtractPlugin({
           filename: '[name].css',
           chunkFilename: '[name].css'
