@@ -1,3 +1,3 @@
 'use strict'
 
-module.exports = (req, res, next) => { next() }
+module.exports = (options) => (req, res, next) => { next() }
