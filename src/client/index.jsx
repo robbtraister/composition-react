@@ -15,22 +15,20 @@ window.ReactDOM = ReactDOM
 window.ReactRouterDOM = ReactRouterDOM
 
 function render () {
-  return function render (props) {
-    const targetElement = document.getElementById(__COMPOSITION_APP_ID__ || 'app')
+  const targetElement = document.getElementById(__COMPOSITION_APP_ID__ || 'app')
 
-    if (targetElement) {
-      const originalHTML = targetElement.innerHTML
+  if (targetElement) {
+    const originalHTML = targetElement.innerHTML
 
-      try {
-        ReactDOM.render(
-          <ReactRouterDOM.BrowserRouter>
-            <App {...props} />
-          </ReactRouterDOM.BrowserRouter>,
-          targetElement
-        )
-      } catch (e) {
-        targetElement.innerHTML = originalHTML
-      }
+    try {
+      ReactDOM.render(
+        <ReactRouterDOM.BrowserRouter>
+          <App />
+        </ReactRouterDOM.BrowserRouter>,
+        targetElement
+      )
+    } catch (e) {
+      targetElement.innerHTML = originalHTML
     }
   }
 }
