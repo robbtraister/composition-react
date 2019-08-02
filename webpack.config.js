@@ -7,7 +7,7 @@ const { DefinePlugin } = require('webpack')
 // const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
-const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
+// const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 
 const {
@@ -166,7 +166,7 @@ module.exports = (env, argv) => {
         new MiniCssExtractPlugin({
           filename: '[name].css',
           chunkFilename: '[name].css'
-        }),
+        })
         // new HtmlWebpackPlugin({
         //   excludeChunks: ['login'],
         //   filename: 'index.html',
@@ -175,9 +175,9 @@ module.exports = (env, argv) => {
         //   template: path.join(projectRoot, 'src', 'page', 'index.html'),
         //   title: pageTitle
         // }),
-        new ScriptExtHtmlWebpackPlugin({
-          defaultAttribute: 'defer'
-        })
+        // new ScriptExtHtmlWebpackPlugin({
+        //   defaultAttribute: 'defer'
+        // })
       ],
       resolve,
       target: 'web'
