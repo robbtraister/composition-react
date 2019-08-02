@@ -17,11 +17,10 @@ const {
   },
   react: {
     appId,
-    fileLimit
+    fileLimit,
+    pageTitle = 'composition'
   }
 } = require('@composition/core/env')
-
-const title = 'composition'
 
 const optimization = {
   minimizer: [
@@ -63,6 +62,66 @@ const resolve = {
   ]
 }
 
+const rules = ({ isProd, isServer }) => [
+  {
+    test: /\.(eot|gif|jpe?g|otf|png|svg|ttf|woff2?)$/,
+    use: {
+      loader: 'url-loader',
+      options: {
+        fallback: 'file-loader',
+        limit: fileLimit,
+        name: (isProd)
+          ? 'assets/[hash].[ext]'
+          : 'assets/[path][name].[ext]',
+        publicPath: '/dist/'
+      }
+    }
+  },
+  {
+    test: /\.s?[ac]ss$/,
+    use: (
+      (isServer)
+        ? []
+        : [{ loader: MiniCssExtractPlugin.loader }]
+    ).concat(
+      {
+        loader: 'css-loader',
+        options: {
+          modules: {
+            mode: 'local'
+          },
+          onlyLocals: isServer,
+          sourceMap: true
+        }
+      }
+    )
+  },
+  {
+    test: /\.s[ac]ss$/,
+    use: {
+      loader: 'sass-loader',
+      options: {
+        implementation: require('sass')
+      }
+    }
+  },
+  {
+    test: /\.ya?ml$/,
+    use: ['json-loader', 'yaml-loader']
+  },
+  {
+    test: /\.m?[jt]sx?$/,
+    exclude: /[\\/]node_modules[\\/](?!@composition[\\/])/,
+    use: {
+      loader: 'babel-loader',
+      options: {
+        ...require('./babel.config'),
+        babelrc: false
+      }
+    }
+  }
+]
+
 module.exports = (env, argv) => {
   const devtool = (isProd)
     ? 'hidden-source-map'
@@ -72,66 +131,6 @@ module.exports = (env, argv) => {
     ? 'production'
     : 'development'
 
-  const rules = (server) => [
-    {
-      test: /\.(eot|gif|jpe?g|otf|png|svg|ttf|woff2?)$/,
-      use: {
-        loader: 'url-loader',
-        options: {
-          fallback: 'file-loader',
-          limit: fileLimit,
-          name: (isProd)
-            ? 'assets/[hash].[ext]'
-            : 'assets/[path][name].[ext]',
-          publicPath: '/dist/'
-        }
-      }
-    },
-    {
-      test: /\.s?[ac]ss$/,
-      use: (
-        (server)
-          ? []
-          : [{ loader: MiniCssExtractPlugin.loader }]
-      ).concat(
-        {
-          loader: 'css-loader',
-          options: {
-            modules: {
-              mode: 'local'
-            },
-            onlyLocals: server,
-            sourceMap: true
-          }
-        }
-      )
-    },
-    {
-      test: /\.s[ac]ss$/,
-      use: {
-        loader: 'sass-loader',
-        options: {
-          implementation: require('sass')
-        }
-      }
-    },
-    {
-      test: /\.ya?ml$/,
-      use: ['json-loader', 'yaml-loader']
-    },
-    {
-      test: /\.m?[jt]sx?$/,
-      exclude: /[\\/]node_modules[\\/](?!@composition[\\/])/,
-      use: {
-        loader: 'babel-loader',
-        options: {
-          ...require('./babel.config'),
-          babelrc: false
-        }
-      }
-    }
-  ]
-
   return [
     {
       devtool,
@@ -140,7 +139,7 @@ module.exports = (env, argv) => {
       },
       mode,
       module: {
-        rules: rules()
+        rules: rules({ isProd })
       },
       optimization: {
         ...optimization,
@@ -173,8 +172,8 @@ module.exports = (env, argv) => {
           filename: 'index.html',
           appId,
           inject: 'head',
-          template: path.join(projectRoot, 'src', 'index.html'),
-          title
+          template: path.join(projectRoot, 'src', 'page', 'index.html'),
+          title: pageTitle
         }),
         new ScriptExtHtmlWebpackPlugin({
           defaultAttribute: 'defer'
@@ -186,7 +185,7 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
-        server: path.join(projectRoot, 'src', 'server')
+        page: path.join(projectRoot, 'src', 'page')
       },
       externals: {
         'prop-types': require.resolve('prop-types'),
@@ -197,7 +196,7 @@ module.exports = (env, argv) => {
       },
       mode,
       module: {
-        rules: rules(true)
+        rules: rules({ isProd, isServer: true })
       },
       output: {
         filename: '[name].js',

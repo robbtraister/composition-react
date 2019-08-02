@@ -35,7 +35,7 @@ async function renderPage (Page, location) {
 }
 
 module.exports = (options) => {
-  const pageModule = path.join(projectRoot, 'build', 'server')
+  const pageModule = path.join(projectRoot, 'build', 'page')
   const indexFile = path.join(projectRoot, 'dist', 'index.html')
 
   return async (req, res, next) => {
