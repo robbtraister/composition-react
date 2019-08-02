@@ -17,12 +17,7 @@ function unpack (mod) {
     : mod
 }
 
-let Page
-try {
-  Page = unpack(require(path.join(projectRoot, 'build', 'server')))
-} catch (_) {}
-
-async function renderPage (location) {
+async function renderPage (Page, location) {
   const context = {}
 
   const html = ReactDOM.renderToStaticMarkup(
@@ -39,11 +34,16 @@ async function renderPage (location) {
   return html
 }
 
-module.exports = Page
-  ? (options) => async (req, res, next) => {
-    res.send(await renderPage(req.originalUrl))
+module.exports = (options) => {
+  const pageModule = path.join(projectRoot, 'build', 'server')
+  const indexFile = path.join(projectRoot, 'dist', 'index.html')
+
+  return async (req, res, next) => {
+    try {
+      const Page = unpack(require(pageModule))
+      res.send(await renderPage(Page, req.originalUrl))
+    } catch (_) {
+      res.sendFile(indexFile)
+    }
   }
-  : (options) => {
-    const indexFile = path.join(projectRoot, 'dist', 'index.html')
-    return (req, res, next) => { res.sendFile(indexFile) }
-  }
+}
