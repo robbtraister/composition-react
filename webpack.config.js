@@ -4,7 +4,7 @@ const path = require('path')
 
 const { DefinePlugin } = require('webpack')
 
-const HtmlWebpackPlugin = require('html-webpack-plugin')
+// const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
 const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
@@ -17,8 +17,8 @@ const {
   },
   react: {
     appId,
-    fileLimit,
-    pageTitle = 'composition'
+    fileLimit
+    // pageTitle = 'composition'
   }
 } = require('@composition/core/env')
 
@@ -167,14 +167,14 @@ module.exports = (env, argv) => {
           filename: '[name].css',
           chunkFilename: '[name].css'
         }),
-        new HtmlWebpackPlugin({
-          excludeChunks: ['login'],
-          filename: 'index.html',
-          appId,
-          inject: 'head',
-          template: path.join(projectRoot, 'src', 'page', 'index.html'),
-          title: pageTitle
-        }),
+        // new HtmlWebpackPlugin({
+        //   excludeChunks: ['login'],
+        //   filename: 'index.html',
+        //   appId,
+        //   inject: 'head',
+        //   template: path.join(projectRoot, 'src', 'page', 'index.html'),
+        //   title: pageTitle
+        // }),
         new ScriptExtHtmlWebpackPlugin({
           defaultAttribute: 'defer'
         })
@@ -185,6 +185,7 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
+        app: path.join(projectRoot, 'src', 'app'),
         page: path.join(projectRoot, 'src', 'page')
       },
       externals: {
