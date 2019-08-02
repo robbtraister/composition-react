@@ -176,14 +176,6 @@ module.exports = (env, argv) => {
           template: path.join(projectRoot, 'src', 'index.html'),
           title
         }),
-        // new HtmlWebpackPlugin({
-        //   excludeChunks: ['app'],
-        //   filename: 'login.html',
-        //   id,
-        //   inject: 'head',
-        //   template: path.join(srcDir, 'app', 'login.html'),
-        //   title
-        // }),
         new ScriptExtHtmlWebpackPlugin({
           defaultAttribute: 'defer'
         })
