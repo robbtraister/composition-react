@@ -135,7 +135,7 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
-        app: './src/client'
+        app: path.resolve(__dirname, 'src', 'client')
       },
       mode,
       module: {
