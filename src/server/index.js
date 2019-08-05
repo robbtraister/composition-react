@@ -81,7 +81,7 @@ async function renderSite ({ Site, Component, location, name }) {
                     }
                   )
                 )
-                .concat('styled-components')
+                .concat(React.createElement('styled-components'))
           }
         )
       )
