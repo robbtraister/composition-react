@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "prettier-standard env/**/*.js",
     "test": "npm run lint",
-    "preversion": "npm run test",
+    "preversion": "npm run test && git add -A",
     "postversion": "git push && git push --tags && (if [ -z \"$(node -p 'require(`./package.json`).version' | grep '-')\" ]; then npm publish; else npm publish --tag \"$(node -p 'require(`./package.json`).version' | sed -e 's/.*-//' -e 's/\\..*//')\"; fi)"
   },
   "keywords": [],

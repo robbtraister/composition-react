@@ -69,17 +69,19 @@ async function renderSite ({ Site, Component, location, name }) {
               [
                 'site',
                 name
-              ].map((key) =>
-                React.createElement(
-                  'link',
-                  {
-                    key,
-                    rel: 'stylesheet',
-                    type: 'text/css',
-                    href: `/dist/${key}.css`
-                  }
+              ]
+                .map((key) =>
+                  React.createElement(
+                    'link',
+                    {
+                      key,
+                      rel: 'stylesheet',
+                      type: 'text/css',
+                      href: `/dist/${key}.css`
+                    }
+                  )
                 )
-              )
+                .concat('styled-components')
           }
         )
       )
