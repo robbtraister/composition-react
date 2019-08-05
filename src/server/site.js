@@ -2,7 +2,7 @@
 
 const React = require('react')
 
-const Page = ({ title, App, Libs, Styles }) =>
+const Site = ({ title, App, Libs, Styles }) =>
   React.createElement(
     'html',
     {},
@@ -24,4 +24,4 @@ const Page = ({ title, App, Libs, Styles }) =>
     ]
   )
 
-module.exports = Page
+module.exports = Site
