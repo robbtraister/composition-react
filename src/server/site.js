@@ -2,7 +2,7 @@
 
 const React = require('react')
 
-const Page = ({ title, App, Libs }) =>
+const Page = ({ title, App, Libs, Styles }) =>
   React.createElement(
     'html',
     {},
@@ -12,7 +12,8 @@ const Page = ({ title, App, Libs }) =>
         { key: 'head' },
         [
           React.createElement('title', { key: 'title' }, title),
-          React.createElement(Libs, { key: 'Libs' })
+          React.createElement(Libs, { key: 'Libs' }),
+          React.createElement(Styles, { key: 'Styles' })
         ]
       ),
       React.createElement(

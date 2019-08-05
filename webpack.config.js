@@ -4,10 +4,8 @@ const path = require('path')
 
 const { DefinePlugin } = require('webpack')
 
-// const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin')
-// const ScriptExtHtmlWebpackPlugin = require('script-ext-html-webpack-plugin')
 const TerserWebpackPlugin = require('terser-webpack-plugin')
 
 const {
@@ -44,7 +42,7 @@ const resolve = {
     'styled-components': getAbsoluteRequire('styled-components'),
     '~': projectRoot,
     $: path.join(projectRoot, 'src'),
-    '@': path.join(projectRoot, 'src', 'app')
+    '@': path.join(projectRoot, 'src', 'views', 'app')
   },
   extensions: [
     '.tsx',
@@ -81,8 +79,8 @@ const rules = ({ isProd, isServer }) => [
     test: /\.s?[ac]ss$/,
     use: (
       (isServer)
-        ? []
-        : [{ loader: MiniCssExtractPlugin.loader }]
+        ? [{ loader: MiniCssExtractPlugin.loader }]
+        : []
     ).concat(
       {
         loader: 'css-loader',
@@ -90,7 +88,7 @@ const rules = ({ isProd, isServer }) => [
           modules: {
             mode: 'local'
           },
-          onlyLocals: isServer,
+          onlyLocals: !isServer,
           sourceMap: true
         }
       }
@@ -135,7 +133,8 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
-        app: path.resolve(__dirname, 'src', 'client')
+        app: path.resolve(__dirname, 'src', 'client', 'app'),
+        login: path.resolve(__dirname, 'src', 'client', 'login')
       },
       mode,
       module: {
@@ -143,6 +142,9 @@ module.exports = (env, argv) => {
       },
       optimization: {
         ...optimization,
+        runtimeChunk: {
+          name: 'runtime'
+        },
         splitChunks: {
           chunks: 'all',
           minSize: 0,
@@ -162,22 +164,7 @@ module.exports = (env, argv) => {
       plugins: [
         new DefinePlugin({
           __COMPOSITION_APP_ID__: JSON.stringify(appId)
-        }),
-        new MiniCssExtractPlugin({
-          filename: '[name].css',
-          chunkFilename: '[name].css'
         })
-        // new HtmlWebpackPlugin({
-        //   excludeChunks: ['login'],
-        //   filename: 'index.html',
-        //   appId,
-        //   inject: 'head',
-        //   template: path.join(projectRoot, 'src', 'page', 'index.html'),
-        //   title: pageTitle
-        // }),
-        // new ScriptExtHtmlWebpackPlugin({
-        //   defaultAttribute: 'defer'
-        // })
       ],
       resolve,
       target: 'web'
@@ -185,8 +172,9 @@ module.exports = (env, argv) => {
     {
       devtool,
       entry: {
-        app: path.join(projectRoot, 'src', 'app'),
-        page: path.join(projectRoot, 'src', 'page')
+        app: path.join(projectRoot, 'src', 'views', 'app'),
+        login: path.join(projectRoot, 'src', 'views', 'login'),
+        site: path.join(projectRoot, 'src', 'views', 'site')
       },
       externals: {
         'prop-types': require.resolve('prop-types'),
@@ -200,10 +188,16 @@ module.exports = (env, argv) => {
         rules: rules({ isProd, isServer: true })
       },
       output: {
-        filename: '[name].js',
+        filename: 'build/[name].js',
         libraryTarget: 'commonjs2',
-        path: path.join(projectRoot, 'build')
+        path: projectRoot
       },
+      plugins: [
+        new MiniCssExtractPlugin({
+          filename: 'dist/[name].css',
+          chunkFilename: 'dist/[name].css'
+        })
+      ],
       resolve,
       target: 'node'
     }

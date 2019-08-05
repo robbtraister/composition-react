@@ -23,7 +23,7 @@ function unpack (mod) {
     : mod
 }
 
-async function renderPage ({ Page, App, location }) {
+async function renderSite ({ Site, Component, location, name }) {
   const sheet = new ServerStyleSheet()
   try {
     const context = {}
@@ -31,7 +31,7 @@ async function renderPage ({ Page, App, location }) {
     const html = ReactDOM.renderToStaticMarkup(
       sheet.collectStyles(
         React.createElement(
-          Page,
+          Site,
           {
             title: appTitle,
 
@@ -47,16 +47,38 @@ async function renderPage ({ Page, App, location }) {
                     context,
                     location
                   },
-                  React.createElement(App)
+                  React.createElement(Component)
                 )
               ),
             Libs: () =>
-              React.createElement(
-                'script',
-                {
-                  defer: true,
-                  src: '/dist/app.js'
-                }
+              [
+                'runtime',
+                'common',
+                name
+              ].map((key) =>
+                React.createElement(
+                  'script',
+                  {
+                    key,
+                    defer: true,
+                    src: `/dist/${key}.js`
+                  }
+                )
+              ),
+            Styles: () =>
+              [
+                'site',
+                name
+              ].map((key) =>
+                React.createElement(
+                  'link',
+                  {
+                    key,
+                    rel: 'stylesheet',
+                    type: 'text/css',
+                    href: `/dist/${key}.css`
+                  }
+                )
               )
           }
         )
@@ -79,27 +101,49 @@ async function renderPage ({ Page, App, location }) {
   }
 }
 
-module.exports = (options) => {
-  const appModule = path.join(projectRoot, 'build', 'app')
-  const pageModule = path.join(projectRoot, 'build', 'page')
+function getRenderer (name) {
+  return function renderer (options) {
+    const componentModule = path.join(projectRoot, 'build', name)
+    const siteModule = path.join(projectRoot, 'build', 'site')
 
-  function getPage () {
-    let Page
-    try {
-      Page = unpack(require(pageModule))
-    } catch (_) {}
-    return Page || require('./page')
-  }
+    function getSite () {
+      let Site
+      try {
+        Site = unpack(require(siteModule))
+      } catch (_) {}
+      return Site || require('./site')
+    }
 
-  return async (req, res, next) => {
-    try {
-      res.send(await renderPage({
-        App: unpack(require(appModule)),
-        Page: getPage(),
-        location: req.originalUrl
-      }))
-    } catch (err) {
-      next(err)
+    return async (req, res, next) => {
+      try {
+        res.send(await renderSite({
+          Component: unpack(require(componentModule)),
+          Site: getSite(),
+          location: req.originalUrl,
+          name
+        }))
+      } catch (err) {
+        next(err)
+      }
     }
   }
+}
+
+module.exports = (options) => {
+  const appRenderer = getRenderer('app')(options)
+  const loginRenderer = getRenderer('login')(options)
+  return [
+    appRenderer,
+    async (err, req, res, next) => {
+      if (err.status === 401 || err.status === 403) {
+        try {
+          await loginRenderer(req, res, next)
+        } catch (e) {
+          next(e)
+        }
+      } else {
+        next(err)
+      }
+    }
+  ]
 }
