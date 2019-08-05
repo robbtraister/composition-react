@@ -41,7 +41,6 @@ const resolve = {
     'react-router-dom': getAbsoluteRequire('react-router-dom'),
     'styled-components': getAbsoluteRequire('styled-components'),
     '~': projectRoot,
-    $: path.join(projectRoot, 'src'),
     '@': path.join(projectRoot, 'src', 'views', 'app')
   },
   extensions: [

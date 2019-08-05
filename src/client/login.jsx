@@ -2,6 +2,6 @@
 
 import renderer from './renderer'
 
-import Login from '$/views/login'
+import Login from '~/src/views/login'
 
 renderer(Login)
