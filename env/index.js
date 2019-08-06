@@ -1,8 +1,8 @@
 'use strict'
 
-module.exports = {
+module.exports = ({ react }) => ({
   react: {
-    appId: 'app',
-    fileLimit: 100 * 1024
+    appId: process.env.APP_ID || react.appId || 'app',
+    fileLimit: Number(process.env.FILE_LIMIT) || react.fileLimit || 100 * 1024
   }
-}
+})
