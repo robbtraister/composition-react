@@ -17,13 +17,15 @@ const {
   }
 } = require('@composition/core/env')
 
+const STYLED_COMPONENTS_PLACEHOLDER = 'styled-components'
+
 function unpack (mod) {
   return mod && mod.__esModule && mod.default
     ? mod.default
     : mod
 }
 
-async function renderSite ({ Site, Component, location, name }) {
+async function renderSite ({ Site, Component, authEnabled, location, name, user }) {
   const sheet = new ServerStyleSheet()
   try {
     const context = {}
@@ -47,7 +49,7 @@ async function renderSite ({ Site, Component, location, name }) {
                     context,
                     location
                   },
-                  React.createElement(Component)
+                  React.createElement(Component, { user })
                 )
               ),
             Libs: () =>
@@ -55,16 +57,29 @@ async function renderSite ({ Site, Component, location, name }) {
                 'runtime',
                 'common',
                 name
-              ].map((key) =>
-                React.createElement(
-                  'script',
-                  {
-                    key,
-                    defer: true,
-                    src: `/dist/${key}.js`
-                  }
+              ]
+                .map((key) =>
+                  React.createElement(
+                    'script',
+                    {
+                      key,
+                      defer: true,
+                      src: `/dist/${key}.js`
+                    }
+                  )
                 )
-              ),
+                .concat(
+                  (authEnabled)
+                    ? React.createElement(
+                      'script',
+                      {
+                        key: 'user',
+                        defer: true,
+                        src: '/auth/user?jsonp=setUser'
+                      }
+                    )
+                    : []
+                ),
             Styles: () =>
               [
                 'site',
@@ -81,7 +96,7 @@ async function renderSite ({ Site, Component, location, name }) {
                     }
                   )
                 )
-                .concat(React.createElement('styled-components'))
+                .concat(React.createElement(STYLED_COMPONENTS_PLACEHOLDER))
           }
         )
       )
@@ -95,7 +110,7 @@ async function renderSite ({ Site, Component, location, name }) {
     }
 
     return `<!DOCTYPE html>${html.replace(
-      /<styled-components><\/styled-components>/g,
+      new RegExp(`<${STYLED_COMPONENTS_PLACEHOLDER}></${STYLED_COMPONENTS_PLACEHOLDER}>`, 'g'),
       sheet.getStyleTags()
     )}`
   } finally {
@@ -103,26 +118,29 @@ async function renderSite ({ Site, Component, location, name }) {
   }
 }
 
+function getSite (siteModule) {
+  let Site
+  try {
+    Site = unpack(require(siteModule))
+  } catch (_) {}
+  return Site || require('./site')
+}
+
 function getRenderer (name) {
   return function renderer (options) {
+    const authEnabled = Object.hasOwnProperty.call(options, 'auth') && name === 'app'
     const componentModule = path.join(projectRoot, 'build', name)
     const siteModule = path.join(projectRoot, 'build', 'site')
-
-    function getSite () {
-      let Site
-      try {
-        Site = unpack(require(siteModule))
-      } catch (_) {}
-      return Site || require('./site')
-    }
 
     return async function render (req, res, next) {
       try {
         res.send(await renderSite({
           Component: unpack(require(componentModule)),
-          Site: getSite(),
+          Site: getSite(siteModule),
+          authEnabled,
           location: req.originalUrl,
-          name
+          name,
+          user: req.user
         }))
       } catch (err) {
         next(err)

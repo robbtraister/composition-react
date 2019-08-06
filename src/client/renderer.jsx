@@ -12,6 +12,11 @@ window.React = React
 window.ReactDOM = ReactDOM
 window.ReactRouterDOM = ReactRouterDOM
 
+let user
+window.setUser = function setUser (u) {
+  user = u
+}
+
 function renderer (Component, appId = 'app') {
   function render () {
     const targetElement = document.getElementById(__COMPOSITION_APP_ID__ || appId)
@@ -20,14 +25,19 @@ function renderer (Component, appId = 'app') {
       const originalHTML = targetElement.innerHTML
 
       try {
+        const props = {
+          user
+        }
+
         ReactDOM.render(
           <ReactRouterDOM.BrowserRouter>
-            <Component />
+            <Component {...props} />
           </ReactRouterDOM.BrowserRouter>,
           targetElement
         )
       } catch (e) {
         targetElement.innerHTML = originalHTML
+        console.error(e)
       }
     }
   }
